@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30104.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RMQReceiver", "RMQReceiver\RMQReceiver.csproj", "{7EF9E673-0CCA-4873-A80C-A9C43A27C636}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7EF9E673-0CCA-4873-A80C-A9C43A27C636}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EF9E673-0CCA-4873-A80C-A9C43A27C636}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EF9E673-0CCA-4873-A80C-A9C43A27C636}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EF9E673-0CCA-4873-A80C-A9C43A27C636}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EE71B629-A9F5-4426-9D75-8D4E17A1F2AE}
+	EndGlobalSection
+EndGlobal

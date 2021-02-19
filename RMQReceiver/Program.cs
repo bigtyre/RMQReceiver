@@ -42,18 +42,11 @@ namespace RMQReceiver
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .Build();
 
-            string hostName = Configuration["RabbitMq:Host"] ?? throw new Exception("Configuration value missing");
-            string username = Configuration["RabbitMq:User"];
-            string password = Configuration["RabbitMq:Password"];
-            int port = int.Parse(Configuration["RabbitMq:Port"]);
+            Uri rabbitMqUri = new Uri(Configuration["RabbitMq:Uri"] ?? throw new Exception("RabbitMq URI not set in configuration file."));
 
             var factory = new ConnectionFactory()
             {
-                ///Ssl = new SslOption(hostName, "", enabled: true),
-                HostName = hostName,
-                UserName = username,
-                Password = password,
-                Port = port
+                Uri = rabbitMqUri
             };
 
             return factory;

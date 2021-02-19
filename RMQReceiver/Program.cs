@@ -24,7 +24,7 @@ namespace RMQReceiver
 
             // Define listener that outputs every message sent to every queue
             var messageQueue = channel.QueueDeclare(queue: "");
-            channel.QueueBind(messageQueue.QueueName, exchangeName, "*");
+            channel.QueueBind(messageQueue.QueueName, exchangeName, "#");
             var consumer = new EventingBasicConsumer(channel);
             consumer.Received += Message_Received;
             channel.BasicConsume(messageQueue.QueueName, true, consumer);

@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "RMQReceiver": {
+      "commandName": "Project",
+      "commandLineArgs": "#"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

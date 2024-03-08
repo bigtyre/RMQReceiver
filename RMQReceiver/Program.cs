@@ -14,8 +14,8 @@ class Program
     static void Main(string[] args)
     {
         // Get application configuration
-        const string exchangeName = "default";
         var settings = GetAppSettings(args);
+        string exchangeName = "default";
         var rabbitMqUri = settings.RabbitMqUri ?? throw new ConfigurationException($"{nameof(AppSettings.RabbitMqUri)} not configured.");
 
         Console.WriteLine("RabbitMQ Receiver");
@@ -50,6 +50,7 @@ class Program
                 {
                     case "vhost": virtualHost = arg; break;
                     case "topic": topics.Add(arg); break;
+                    case "exchange": exchangeName = arg; break;
                 }
                 if (activeParamIsMultivalue is false)
                 {

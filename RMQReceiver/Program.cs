@@ -2,6 +2,7 @@
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -18,12 +19,53 @@ class Program
         var rabbitMqUri = settings.RabbitMqUri ?? throw new ConfigurationException($"{nameof(AppSettings.RabbitMqUri)} not configured.");
 
         Console.WriteLine("RabbitMQ Receiver");
-        Console.WriteLine("Enter virtual host:");
-        Console.Write("/");
-        var virtualHost = Console.ReadLine();
-        if (string.IsNullOrEmpty(virtualHost))
+
+        var multiValueParameters = new List<string>() { "topic" };
+        bool activeParamIsMultivalue = false;
+        string? activeParam = null;
+        string virtualHost = "";
+        List<string> topics = new();
+
+        for (int i = 0;i < args.Length; i++)
         {
-            virtualHost = "/";
+            var arg = args[i];
+
+            if (arg.StartsWith("--"))
+            {
+                if (activeParam is not null)
+                {
+                    if (activeParamIsMultivalue is false)
+                    {
+                        Console.Write($"Error: Parameter value not provided for {activeParam}");
+                        return;
+                    }
+                }
+
+                activeParam = arg;
+                activeParamIsMultivalue = multiValueParameters.Contains(activeParam.TrimStart('-'));
+            }
+            else
+            {
+                switch (activeParam?.TrimStart('-'))
+                {
+                    case "vhost": virtualHost = arg; break;
+                    case "topic": topics.Add(arg); break;
+                }
+                if (activeParamIsMultivalue is false)
+                {
+                    activeParam = null;
+                }
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(virtualHost)) { 
+            Console.WriteLine("Enter virtual host:");
+            Console.Write("/");
+            virtualHost = Console.ReadLine() ?? "";
+            if (string.IsNullOrEmpty(virtualHost))
+            {
+                virtualHost = "/";
+            }
         }
 
         var uriBuilder = new UriBuilder(rabbitMqUri)
@@ -40,12 +82,12 @@ class Program
         var displayUri = uriBuilder.Uri;
 
 
-
-        Console.WriteLine("Enter one or more topics to listen to, separated by spaces (optional):");
-        var topicString = Console.ReadLine() ?? "";
-        if (string.IsNullOrWhiteSpace(topicString)) topicString = "#"; // Listen to all message topics
-        var topics = topicString.Split(' ');
-
+        if (topics.Count < 1) { 
+            Console.WriteLine("Enter one or more topics to listen to, separated by spaces (optional):");
+            var topicString = Console.ReadLine() ?? "";
+            if (string.IsNullOrWhiteSpace(topicString)) topicString = "#"; // Listen to all message topics
+            topics.AddRange(topicString.Split(' '));
+        }
 
         Console.WriteLine($"Connecting to {displayUri}");
 
@@ -71,7 +113,7 @@ class Program
 
         // Output a summary of what we're listening to and how to quit
         Console.Write($"Listening for messages on {factory.Endpoint} on host {factory.VirtualHost}");
-        var numTopics = topics.Length;
+        var numTopics = topics.Count;
         if (numTopics > 0)
         {
             string topicsText = ReplaceLastOccurrence(string.Join(", ", numTopics), ",", " &");

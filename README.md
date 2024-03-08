@@ -1,0 +1,1 @@
+This is a small command line utility that can connect to a RabbitMQ server, listen on one or more queues and publish received messages to stdout. It was designed for internal use, so it's not as polished as it could be, but it can be very helpful while debugging.

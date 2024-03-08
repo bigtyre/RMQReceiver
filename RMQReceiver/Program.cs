@@ -2,6 +2,7 @@
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
+using System.Linq;
 using System.Text;
 using System.Threading;
 
@@ -15,7 +16,38 @@ class Program
         const string exchangeName = "default";
         var settings = GetAppSettings(args);
         var rabbitMqUri = settings.RabbitMqUri ?? throw new ConfigurationException($"{nameof(AppSettings.RabbitMqUri)} not configured.");
-        var topics = settings.Topics;
+
+        Console.WriteLine("RabbitMQ Receiver");
+        Console.WriteLine("Enter virtual host:");
+        Console.Write("/");
+        var virtualHost = Console.ReadLine();
+        if (string.IsNullOrEmpty(virtualHost))
+        {
+            virtualHost = "/";
+        }
+
+        var uriBuilder = new UriBuilder(rabbitMqUri)
+        {
+            Path = virtualHost
+        };
+        rabbitMqUri = uriBuilder.Uri;
+
+
+        uriBuilder = new UriBuilder(rabbitMqUri)
+        {
+            Password = "******"
+        };
+        var displayUri = uriBuilder.Uri;
+
+
+
+        Console.WriteLine("Enter one or more topics to listen to, separated by spaces (optional):");
+        var topicString = Console.ReadLine() ?? "";
+        if (string.IsNullOrWhiteSpace(topicString)) topicString = "#"; // Listen to all message topics
+        var topics = topicString.Split(' ');
+
+
+        Console.WriteLine($"Connecting to {displayUri}");
 
         // Set up the RabbitMQ connection
         var factory = new ConnectionFactory() { Uri = rabbitMqUri };
@@ -26,10 +58,6 @@ class Program
 
         // Define listener that outputs every message sent to every queue
         var messageQueue = channel.QueueDeclare();
-        if (topics.Count == 0)
-        {
-            topics.Add("#");
-        }
 
         foreach (string topic in topics)
         {
@@ -43,10 +71,11 @@ class Program
 
         // Output a summary of what we're listening to and how to quit
         Console.Write($"Listening for messages on {factory.Endpoint} on host {factory.VirtualHost}");
-        if (topics.Count > 0)
+        var numTopics = topics.Length;
+        if (numTopics > 0)
         {
-            string topicsText = ReplaceLastOccurrence(string.Join(", ", topics.Count), ",", " &");
-            Console.Write(" on topics " + topics);
+            string topicsText = ReplaceLastOccurrence(string.Join(", ", numTopics), ",", " &");
+            Console.Write(" on topics " + string.Join(", ", topics));
         }
         Console.WriteLine();
         Console.WriteLine("Press CTRL+C to quit.");
@@ -111,7 +140,7 @@ class Program
             maxKeyLength = routingKeyLength;
         }
 
-        Console.Write($"{DateTime.Now:G}   ");
+        Console.Write($"{DateTime.Now:yyyy-MM-dd h:mm:ss tt}   ");
         var colour = Console.ForegroundColor;
         Console.ForegroundColor = ConsoleColor.Cyan;
         Console.Write($"{routingKey.PadLeft(maxKeyLength)}   ");
